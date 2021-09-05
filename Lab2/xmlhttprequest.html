@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <h1 id='fio'>Name Surname: </h1>
+</body>
+<script>
+    let elem = document.getElementById('fio');
+    let r = new XMLHttpRequest();
+    r.open('GET', 'http://localhost:5000/api/name', false);
+    r.send();
+    if(r.status == 200)
+    {
+        elem.append(r.responseText);
+    }
+</script>
+</html>
