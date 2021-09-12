@@ -9,7 +9,7 @@ let h = (r)=>{
 http.createServer(function(request,response)
 {
     let b = '';
-    request.on('data',str=>{b+=str;console.log('data',b)})
+    request.on('data',str=>{b+=str;});
     response.writeHead(200,{'Content-Type':'text/html;charset=utf-8'});
     request.on('end',()=> response.end(
         '<!DOCTYPE html> <html><head></head>' +
@@ -23,7 +23,6 @@ http.createServer(function(request,response)
         '<h2>' + 'тело: ' + b + '</h2>'+
         '</body>'+
         '</html>'
-
     ))
 }).listen(3000);
 
