@@ -52,27 +52,29 @@ server((req,res)=>
                 else if (url.parse(req.url).pathname === '/facti')
                 {
                     console.log(req.url);
-                    if (typeof url.parse(req.url, true).query.k != 'undefined' ){
+                    if (typeof url.parse(req.url, true).query.k != 'undefined' )
+                    {
                         let k = parseInt(url.parse(req.url, true).query.k);
-                            if (Number.isInteger(k))
-                            {
+                        if (Number.isInteger(k))
+                        {
                             res.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'});
-                            const d = new Date;
+                            const d = Date.now();
                             let fact = new Fact(k, (err, result)=>
                             {
                                 res.end(JSON.stringify({ k:k, factorial: result, time: (Date.now() -d)  + "ms" }));
                             });                            
                             fact.calc();
-                            }
+                        }   
                     }
                 }
                 else if (url.parse(req.url).pathname === '/facto')
                 {
                     console.log(req.url);
-                    if (typeof url.parse(req.url, true).query.k != 'undefined' ){
+                    if (typeof url.parse(req.url, true).query.k != 'undefined' )
+                    {
                         let k = parseInt(url.parse(req.url, true).query.k);
-                            if (Number.isInteger(k))
-                            {
+                        if (Number.isInteger(k))
+                        {
                             res.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'});
                             const d = Date.now();
                             let fact = new Fact1(k, (err, result)=>
@@ -80,7 +82,7 @@ server((req,res)=>
                                 res.end(JSON.stringify({ k:k, factorial: result, time: (Date.now() -d) + "ms" }));
                             });    
                             fact.calc();
-                            }
+                        }
                     }
                 }
                 else

@@ -1,5 +1,5 @@
 var http = require('http')
-var fs = require('fs') //Доступ к файловой системе
+var fs = require('fs') 
 
 http.createServer((req, response)=>
   {
