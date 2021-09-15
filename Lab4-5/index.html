@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>4 Lab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        body,html {
+          height: 100%;
+          padding: 1%;
+        }
+        input[type="number"],input[type="text"],input[type="date"],select.form-control 
+        {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid #555555;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        border-radius: 0;
+        }
+        input[type="text"]:focus,select.form-control:focus 
+        {
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        }
+
+        </style>
+</head>
+<body>
+    <section id="insert-names">
+        <div class="container align-items-center h-100 w-50">
+            <div class="row  h-100">
+                <div class="container ">
+                    <button  class="btn btn-primary" onclick="Get()">Получить данные</button>
+                        <fieldset >
+                            <legend>Добавление</legend>
+                            
+                                <label for="name">Имя:</label>
+                                <input type="text" id="iNAME"><br>
+                                <label for="birthD">Дата рождения:</label>
+                                <input type="date" id="iBIRTH"><br>
+                                <button  class="btn btn-primary" onclick="Post()">Добавить данные</button>
+                            
+                        </fieldset>
+                        <fieldset>
+                            <legend>Изменение</legend>
+                            
+                                <label for="uId">ID:</label>
+                                <input type="number" id="uID"><br>
+                                <label for="uName">Имя:</label>
+                                <input type="text" id="uNAME"><br>
+                                <label for="birthD">Дата рождения:</label>
+                                <input type="date" id="uBIRTH"><br>
+                                <button class="btn btn-primary" onclick="Put()">Изменить данные</button>
+                            
+                        </fieldset>
+                        <fieldset>
+                            <legend>Удаление</legend>
+                            
+                                <label for="dID">ID:</label>
+                                <input type="number" id="dID"><br>
+                                <button  class="btn btn-danger" onclick="Delete()">Удалить данные</button>
+                            
+                        </fieldset>
+                        <div id="get"></div>
+                    </div>
+                </div>
+            </div>      
+        </section>
+
+    <script>
+        function Get() {
+            fetch('http://localhost:5000/api/db', {
+                method: 'GET',
+                headers: {'Content-Type':'application/json'}
+            })
+            .then(response => { return response.json(); })
+            .then(pdata => {
+                console.log('pdata', pdata);
+                let get = document.getElementById("get");
+                get.innerHTML = '';
+                pdata.forEach(element => 
+                {
+                	get.innerHTML += (element.id + '.  ' + element.name +
+                             ' ' + element.bday + '<br/>');
+                });
+            });
+        }
+
+        function Post() {
+            let Name = document.getElementById("iNAME");
+            let BDay = document.getElementById("iBIRTH");
+
+            if (Name.value && BDay.value) {
+                fetch(`http://localhost:5000/api/db`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(
+                        {
+                            name: Name.value,
+                            bday: BDay.value
+                        }
+                    )})
+                    .then(response => { return response.json(); })
+                    .then(pdata => {
+                        console.log('POST ', pdata);
+                    });
+            }
+            else {
+                let get = document.getElementById("get");
+                get.innerHTML = 'error';
+            }
+            Get();
+            Name.value = null;
+            BDay.value = null;
+        }
+
+        function Put() {
+            let Name = document.getElementById("uNAME");
+            let BDay = document.getElementById("uBIRTH");
+            let Id = document.getElementById('uID');
+
+            if (uNAME.value && uBIRTH.value && uID.value) {
+                fetch(`http://localhost:5000/api/db`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(
+                        {
+                        	id: Id.value,
+                            name: Name.value,
+                            bday: BDay.value
+                        }
+                    )})
+                    .then(response => { return response.json(); })
+                    .then(pdata => {
+                        console.log('PUT.pdata', pdata);
+                    });
+            }
+            else {
+                let get = document.getElementById("get");
+                get.innerHTML = 'error';
+            }
+            Get();
+            Name.value = null;
+            BDay.value = null;
+            Id.value = null;
+        }
+
+        function Delete() 
+        {
+            let Id = document.getElementById("dID");
+            if (Id.value) 
+            {
+                fetch(`http://localhost:5000/api/db?id=${Id.value}`, {
+                    method: 'DELETE'
+                })
+                .then(response => { return response.json(); })
+                .then(pdata => 
+                {
+                    let get = document.getElementById("get");
+                    get.innerHTML = "Удалённая строка:" + `${pdata.id}. ${pdata.name}, ${pdata.bday}`;
+                    console.log('DELETE.pdata', ` ${pdata.id}. ${pdata.name}, ${pdata.bday}`);
+                });
+            }
+            else {
+                let get = document.getElementById("get");
+                get.innerHTML = 'error';
+            }
+            Id.value = null;
+        }
+    </script>
+</body>
+</html>

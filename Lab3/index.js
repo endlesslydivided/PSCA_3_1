@@ -98,22 +98,25 @@ process.stdin.setEncoding('utf-8');
 
 process.stdin.on('readable',()=>
 {
-    let chunk = null;
-    while((chunk = process.stdin.read()) != null)
+    let inputV = null;
+    while((inputV = process.stdin.read()) != null)
     {      
-        if(chunk.trim() == 'exit')
+        if(inputV.trim() == 'exit')
+        {
             process.exit(0);
-        else if (chunk.trim() == 'norm' || 
-                chunk.trim() == 'test' || 
-                chunk.trim() == 'stop' || 
-                chunk.trim() == 'idle')
+        }
+        else if (inputV.trim() == 'norm' || 
+                inputV.trim() == 'test' || 
+                inputV.trim() == 'stop' || 
+                inputV.trim() == 'idle')
         {
             process.stdout.write('reg = ' + state + '->');
-            state = chunk.trim().toLowerCase();
-            process.stdout.write(chunk.trim()+'\n' + chunk.trim()+ '->');
-            
+            state = inputV.trim().toLowerCase();
+            process.stdout.write(inputV.trim()+'\n' + inputV.trim()+ '->');         
         }
-        else
-            process.stdout.write('Unknow command: ' + chunk.trim()+ '\n');
+        else   
+        {
+            process.stdout.write('Unknow command: ' + inputV.trim()+ '\n');
+        }
     }
 })
