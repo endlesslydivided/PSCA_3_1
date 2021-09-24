@@ -1,7 +1,6 @@
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
-var qs = require('querystring');
 const DataBase = require('./DB/DataBase');
 const sockets = new Set();
 
@@ -67,6 +66,7 @@ var server = http.createServer(function (request, response)
 }).listen(5000, 'localhost', ()=>{console.log('Server running at http://localhost:5000/');});
 
 process.stdin.setEncoding('utf-8');
+process.stdin.unref();
 
 process.stdin.on('readable', () => 
 {
@@ -106,7 +106,6 @@ process.stdin.on('readable', () =>
 
     if (command.trim().startsWith('sc')) 
     {
-        //!!!!
         let sec = Number(command.trim().replace(/[^\d]/g, ''));
         if(sec) 
         {
@@ -157,11 +156,7 @@ function printStatic() {
 }
 
 let close = (callback) => {
-    for (const socket of sockets) 
-    {
-        socket.destroy();
-        sockets.delete(socket);
-    }
+   
     console.log('All connections closed');
     server.close(callback);
     console.log('Server terminated');
