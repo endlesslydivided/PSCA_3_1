@@ -5,8 +5,7 @@
   "main": "06-02.js",
   "dependencies": {
     "nodemailer": "^6.6.3",
-    "sendmail": "^1.6.1",
-    "sendmail_test": "^1.0.0"
+    "sendmail": "^1.6.1"
   },
   "devDependencies": {},
   "scripts": {

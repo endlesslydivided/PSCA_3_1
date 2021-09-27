@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-function Stat(sfn='./static')
+function Stat(sfn)
 {
     this.STATIC_FOLDER = sfn;
     let pathStatic = (fn)=> `${this.STATIC_FOLDER}${fn}`;
