@@ -1,14 +1,20 @@
 const http = require('http');
 const url = require('url');
+const needle = require('needle');
 const fs = require('fs');
+const mp = require('multiparty');
+const parseString = require('xml2js').parseString;
+const xmlbuilder = require('xmlbuilder');
 
 let server = http.createServer();
 
-server.keepAliveTimeout = 10000;
+server.keepAliveTimeout = 2000;
+
+let clientSocket = {};
 
 let http_handler = (req,res) => 
 {
-    res.address = 'http://localhost:5000';
+    res.address = 'http://localhost:5001';
 
     if(url.parse(req.url).pathname === '/connection')
     {
@@ -19,31 +25,39 @@ let http_handler = (req,res) =>
         }
         else
         {
-            server.keepAliveTimeout = url.parse(req.url,true).query.set;
+            server.keepAliveTimeout = +url.parse(req.url,true).query.set;
             res.writeHead(200,{'Content-Type': 'text/html;charset=utf-8'});
             res.end(`<h1>New value of KeepAliveTimeout: ${server.keepAliveTimeout}</h1>`);
         }
     }
 
+    if(url.parse(req.url).pathname === '/heads') 
+    {
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8 ','MyHeader': 'MyHeaderValue'});
+        res.end("Hi!");
+    }
     if(url.parse(req.url).pathname === '/headers') 
     {
-        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8 ','TRIAL':3});
-        res.end(`<h2>${JSON.stringify(req.headers)}</h2>`);
+        let html = fs.readFileSync('headers.html');
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+        for(key in req.headers)
+        res.write(`<h3>request: ${key}: ${req.headers[key]}</h3>`);
+        res.end(html);
     }
 
     if(url.parse(req.url).pathname === '/parameter') 
-    {
-        if( 
-            (x = +url.parse(req.url, true).query.x) && 
-            (y = +url.parse(req.url, true).query.y)
-          ) 
+    {   
+        x = +url.parse(req.url, true).query.x;
+        y = +url.parse(req.url, true).query.y;
+        if(Number.isInteger(x) && Number.isInteger(y)) 
         {
             res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
             res.end(`<h2>Sum: ${x + y}</h2> \n <h2>Sub: ${x - y}</h2> \n <h2>Mult: ${x * y}</h2> \n <h2>Division: ${x / y}</h2>`);
-        } else 
+        } 
+        else 
         {
             res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-            res.end(`<h2>${url.parse(req.url).pathname}</h2> \n <h2>Parameters is not number</h2>`);
+            res.end(`<h2>${url.parse(req.url).pathname}</h2> \n <h2>Parameters are not number</h2>`);
         }
     }
 
@@ -73,9 +87,10 @@ let http_handler = (req,res) =>
     if(url.parse(req.url).pathname === '/close') 
     {
         res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        res.end(`<h2>Server will be closed in 10 sec.</h2>`);
-        setTimeout(()=> {server.close();}, 10000);
+        res.end(`<h2>Server will be closed in 2 sec.</h2>`);
+        setTimeout(()=> {server.close();}, 2000);
     }
+
 
     if(url.parse(req.url).pathname === '/socket') 
     {
@@ -104,7 +119,8 @@ let http_handler = (req,res) =>
     {
         if((x = +url.parse(req.url, true).query.code) && (y = url.parse(req.url, true).query.mess))  
         {
-            res.writeHead(x,y, {'Content-Type': 'text/html; charset=utf-8'});
+            res.statusMessage= y;
+            res.writeHead(x, {'Content-Type': 'text/html; charset=utf-8'});
             res.end();
         }
     }
@@ -139,13 +155,24 @@ let http_handler = (req,res) =>
             res.writeHead(200, {'Content-type': 'application/json; charset=utf-8'});
             data = JSON.parse(data);
             let jsonResponse = {};
-            jsonResponse.__comment = 'Response: ' + data.comment;
+            jsonResponse.__comment = data.__comment.replace("Запрос.","Ответ:");
             jsonResponse.x_plus_y = data.x + data.y;
             jsonResponse.Concatenation_s_o = data.s + ': ' + data.o.surname + ', ' + data.o.name;
             jsonResponse.Length_m = data.m.length;
             res.end(JSON.stringify(jsonResponse));
         });
     }
+
+/*
+{
+    "__comment": "Запрос.Лабораторная работа 8/10",
+    "x":1,
+    "y":2,
+    "s":"Сообщение",
+    "m":["a","b","c","d"],
+    "o":{"surname":"Иванов","name":"Иван"}   
+}
+*/
 
     if (url.parse(req.url).pathname === '/xml' && req.method === 'POST') 
     {
@@ -168,13 +195,22 @@ let http_handler = (req,res) =>
                     mSum += p.$.value;
                 });
 
-                let xmlDoc = xmlbuilder.create('response').att('id', id);
+                let xmlDoc = xmlbuilder.create('response').att('id', '33').att('request',id);
                 xmlDoc.ele('sum').att('element', 'x').att('result', xSum).up().ele('concat').att('element', 'm').att('result', mSum);
 
                 res.end(xmlDoc.toString());
             });
         });
     }
+/*
+<request id="28">
+    <x value="1"/>
+    <x value="1"/>
+    <m value="a"/>
+    <m value="b"/>
+    <m value="c"/>
+</request>
+*/
 
     if (url.parse(req.url).pathname === '/files') 
     {
@@ -227,5 +263,10 @@ server.on('connection', socket => {
     clientSocket.localPort = socket.localPort;
 });
 
+
+
 server.on('request', http_handler);
-server.listen(5000);
+server.listen(5001);
+
+console.log("http://localhost:5001");
+server.on('close',()=>{console.log("Server is closed")});

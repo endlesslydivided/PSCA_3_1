@@ -2,25 +2,17 @@ const http = require('http');
 const fs = require('fs');
 
 http.createServer(function(request, response) {
+    if(request.method === 'GET')
+    {
     response.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
-    let readableStream = fs.createReadStream('MyFile.txt');
-    readableStream.on('end', () => {
+    let readableStream = fs.createReadStream('MyFile2.txt');
+    readableStream.on('end', (data) => {
         response.end();
     });
 
     readableStream.pipe(response);
+    }
 }).listen(8080);
 
-let writeableStream = fs.createWriteStream('MyFile2.txt');
+console.log("http://localhost:8080/")
 
-let options = {
-    host: 'localhost',
-    path: '/',
-    port: 8080,
-    method: 'GET'
-};
-
-let req = http.request(options, (res) => {
-    res.pipe(writeableStream);
-});
-req.end();

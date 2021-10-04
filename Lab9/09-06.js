@@ -10,12 +10,11 @@ http.createServer(function(request, response) {
     });
 }).listen(8080);
 
-let bound = '-------------573cf973d5228';
-let body = `--${bound}\r\n`;
-    body += 'Content-Disposition: form-data; name="file"; filename="MyFile.txt"\r\n';
-    body += 'Content-Type: text/plain\r\n\r\n';
+let bound = '--------------------------';
+let body = `\n${bound}\n`;
+    body += 'Content-Type: text/plain\n\n';
     body += fs.readFileSync('MyFile.txt');
-    body += `\r\n--${bound}--\r\n`;
+    body += `\n${bound}\n`;
 
 let options = {
     host: 'localhost',
