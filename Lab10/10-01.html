@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lab10-01</title>
+</head>
+<body style="font-family:Samsung Sharp Sans;">
+    <h1>Lab10</h1>
+    <h2 id="text"></h2>
+    <button onclick="startWS()">startWS</button>
+    <script>
+        let k = 0;
+        let text = document.getElementById("text");
+        function startWS() {
+            let socket = new WebSocket('ws:/localhost:4000/wsserver');
+            socket.onopen = () => { console.log('socket.onopen');
+                setInterval(() => { socket.send(`10-01 client: ${++k}`); }, 3000);
+            };
+
+            socket.onclose = (e) => { console.log('socket.onclose', e); };
+            socket.onmessage = (e) => { 
+                text.insertAdjacentHTML('beforeend',`<p>${e.data}</p>`)
+                console.log('socket.onmessage', e.data); };
+            socket.onerror = function(error) { alert('Error: ' + error.message); };
+        }
+    </script>
+</body>
+</html>
