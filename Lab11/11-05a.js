@@ -54,14 +54,18 @@ ws.on('open',()=>{
         ws.call('fact',[5]).catch((e)=>{
             console.log('catch: ',e);
         }).then((r)=>{
-            console.log('fib = ',r);
+            console.log('fact = ',r);
         });
 
         ws.call('fact',[10]).catch((e)=>{
             console.log('catch: ',e);
         }).then((r)=>{
-            console.log('fib = ',r);
+            console.log('fact = ',r);
         });
 
     });
 })
+
+process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  });

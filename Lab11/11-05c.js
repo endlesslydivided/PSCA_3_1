@@ -9,12 +9,12 @@ ws.on('open',()=>{
 
 async function calc()
 {
-    console.log('Result: ' + await ws.call('sum'),
+    console.log('Result: ' + (await ws.call('sum',
     [
         await ws.call('square',[3]),
         await ws.call('square',[5,4]),
         await ws.call('mul',[3,5,7,9,11,13])
-    ])
-    + (await ws.call('fib',7)).reduce((a,b)=> a + b, 0)*
-    await ws.call('mul',[2,4,6]);
+    ]) 
+    + (await ws.call('fib',7)).reduce((a,b)=> a + b, 0)
+    * await ws.call('mul',[2,4,6])).toFixed(2));
 }

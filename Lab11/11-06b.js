@@ -1,7 +1,7 @@
-const rpc = require('rpc-websockets').Client;
-const eventSocket = new rpc('ws://localhost:4000');
+const rpcWSC = WebSocket = require('rpc-websockets').Client;
+let ws = new rpcWSC('ws://localhost:4000');
 
-eventSocket.on('open', () => {
-    eventSocket.subscribe('B');
-    eventSocket.on('B', () => console.log('B event!\n' + new Date().toString()));
+ws.on('open',()=>{
+    ws.subscribe('B');
+    ws.on('B',(p)=> console.log('B event:\n',p));
 });

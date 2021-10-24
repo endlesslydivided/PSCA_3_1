@@ -4,7 +4,7 @@ const ws = new WebSocket('ws://localhost:5000');
 let parm = process.argv[2];
 let prfx = typeof parm == 'undefined' ? 'ABC' :parm;
 
-ws.on('opne',()=>{
+ws.on('open',()=>{
     ws.on('message',(data)=>{
         data = JSON.parse(data);
         console.log('on message: ',data);
@@ -14,10 +14,10 @@ ws.on('opne',()=>{
         ws.send(JSON.stringify(
             {
                 x:prfx,
-                t: new Date.toISOString()
+                t: (new Date()).toString()
             }
         ))
-    })
+    },3000)
 });
 
 ws.on('error',(e)=>{

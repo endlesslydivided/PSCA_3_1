@@ -6,6 +6,6 @@ const ws = new WebSocket('ws://localhost:5000');
 ws.on('open',()=>
 {
     const duplex = WebSocket.createWebSocketStream(ws,{encoding:'utf8'});
-    let rfile = fs.createReadStream('./MyFile.txt');
+    let rfile = fs.createReadStream('./download/MyFile.txt');
     rfile.pipe(duplex);
 })

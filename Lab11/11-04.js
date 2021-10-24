@@ -15,7 +15,13 @@ wss.on('connection', (ws)=>{
     });
 
     let count_of_messages = 0;
-    setInterval(()=> {ws.send(JSON.stringify({n: count_of_messages++, x: data2.x, t: new Date().toISOString()}))}, 5000);
+    wss.clients.forEach((client)=>
+    {
+        if(client.readyState === WebSocket.OPEN)
+        {
+            setInterval(()=> {ws.send(JSON.stringify({n: count_of_messages++, x: data2.x, t: (new Date()).toString()}))}, 6000);
+        }
+    })
 });
 
 wss.on('error', (e)=>{

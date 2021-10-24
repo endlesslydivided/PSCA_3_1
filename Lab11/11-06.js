@@ -1,6 +1,6 @@
 const rpcServer = require('rpc-websockets').Server;
 
-const eventSocket = new rpcServer({ port: 4000, host: 'localhost', path: '/'});
+const eventSocket = new rpcServer({ port: 4000, host: 'localhost'});
 
 eventSocket.event('A');
 eventSocket.event('B');
@@ -11,8 +11,7 @@ console.log('Choose A, B, C event');
 let input = process.stdin;
 
 input.setEncoding('utf-8');
-process.stdout.write('-');
 input.on('data', (data) =>{
-    eventSocket.emit(data.slice(0,-1));
-    process.stdout.write('- ');
+    let getData = data.slice(0,1);
+    eventSocket.emit(getData,{x: `Event emmited: ${getData}`,date: (new Date).toTimeString()});
 });
