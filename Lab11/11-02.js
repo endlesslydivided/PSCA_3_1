@@ -11,7 +11,7 @@ const ws = new WebSocket.Server(
 let k = 0;
 ws.on('connection',(ws)=>
 {
-    const duplex = WebSocket.createWebSocketStream(ws,{encoding:'utf8'});
+    const str = WebSocket.createWebSocketStream(ws,{encoding:'utf8'});
     let rfile = fs.createReadStream(`./download/MyFile.txt`);
-    rfile.pipe(duplex);
+    rfile.pipe(str);
 })

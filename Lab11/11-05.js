@@ -53,7 +53,14 @@ server.register('fib', (param)=>{
 
 function factorial(n)
 {
-    return (n!==1 || n!==0) ? n * factorial(n-1) : 1;
+    if(n==0 || n==1)
+    {
+        return 1;
+    }
+    else
+    {
+        return n * factorial(n-1);
+    }
 }
 
 server.register('fact',(param)=>{

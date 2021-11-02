@@ -11,7 +11,7 @@ const ws = new WebSocket.Server(
 let k = 0;
 ws.on('connection',(ws)=>
 {
-    const duplex = WebSocket.createWebSocketStream(ws,{encoding:'utf8'});
+    const str = WebSocket.createWebSocketStream(ws,{encoding:'utf8'});
     let wfile = fs.createWriteStream(`./upload/file${++k}.txt`);
-    duplex.pipe(wfile);
+    str.pipe(wfile);
 })
