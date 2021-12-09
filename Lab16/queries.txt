@@ -1,0 +1,67 @@
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+query{
+    getFaculties{
+        FACULTY
+        FACULTY_NAME
+    }
+}
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+mutation($TEACHER: String!,$TEACHER_NAME:String!,$PULPIT:String!)
+    {
+        setTeacher(TEACHER: $TEACHER,TEACHER_NAME:$TEACHER_NAME,PULPIT:$PULPIT)
+        {
+            TEACHER
+            TEACHER_NAME
+        }
+    }
+
+{
+    "TEACHER" : "СМЛВ",
+    "TEACHER_NAME" : "Смелов Владимир Владиславович",
+    "PULPIT" : "ИСИТ"
+}
+-------
+query{
+    getTeachers(TEACHER:"СМЛВ"){
+        TEACHER
+        TEACHER_NAME
+    }
+}
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+query{
+    getTeachersByFaculty(FACULTY:"ЛХФ"){
+       FACULTY
+       TEACHERS
+       {
+           TEACHER
+           TEACHER_NAME
+       }
+    }
+}
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+mutation($TEACHER: String!)
+    {
+        delTeacher(TEACHER: $TEACHER)
+        {
+            TEACHER
+            TEACHER_NAME
+        }
+    }
+
+{
+    "TEACHER" : "СМЛВВ"
+}
+-------
+
+query{
+    getTeachers{
+        TEACHER
+        TEACHER_NAME
+    }
+}

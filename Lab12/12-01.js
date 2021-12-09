@@ -4,6 +4,7 @@ const websocket = require("ws");
 const url = require('url');
 const { log } = require("console");
 const pathToFile = './file/StudentList.json';
+const pathToBackup = './backup';
 
 http.createServer((request,response)=>
 {
@@ -14,7 +15,7 @@ http.createServer((request,response)=>
         case 'PUT': putHandler(request, response); break;
         case 'DELETE': deleteHandler(request, response); break;
     }
-})
+}).listen(5000, 'localhost', ()=>{console.log('Server running at http://localhost:5000');});
 
 let wss = new websocket.Server({port: 4000, host: 'localhost', path: '/broadcast'});
 
@@ -32,6 +33,7 @@ fs.watch(pathToFile,{encoding: 'buffer'},(eventType,fileName)=>
     }
 })
 
+
 function getHandler(request,response)
 {
     let path = url.parse(request.url).pathname;
@@ -40,12 +42,12 @@ function getHandler(request,response)
         case path === '/':
         {
             response.setHeader('Content-Type','application/json; charset:utf-8');
-            response.end(readFile(pathToFile));
+            response.end(readFile(pathToFile).toString());
             break;
         }
         case (new RegExp(/\/\d+/)).test(path):
         {
-            let fileJSON = readFile();
+            let fileJSON = readFile(pathToFile);
             let id = Number(path.match(/\d+/)[0]);
             JSON.parse(fileJSON).forEach(item=>
             {
@@ -90,7 +92,14 @@ function getHandler(request,response)
             }
     }
 };
+//{"id":6,"name":"Бабубель Бубений Бубеневич","bday":"2002-05-06","specility":"ИСиТ"},
 
+
+/*[{"id":1,"name":"Ковалев Александр Александрович", "bday":"2002-09-04","specility":"ПОИТ"},
+{"id":2,"name":"Батурель Евгений Дмитриев","bday":"2001-12-03","specility":"ПОИТ"},
+{"id":3,"name":"Михалькевич Алексей Вячеславович","bday":"2002-05-05","specility":"ПОИТ"},
+{"id":4,"name":"Шуст Юрий Олегович","bday":"2002-06-05","specility":"ПОИТ"},
+{"id":5,"name":"Ерчинская Наталья Васильевна","bday":"2002-11-02","specility":"ПОИТ"}]*/
 function postHandler(request,response)
 {
     let path = url.parse(request.url).pathname;
@@ -122,7 +131,7 @@ function postHandler(request,response)
                         if (e) 
                         {
                             console.log('Error');
-                            errHandler(request, response, e.code, e.message);
+                            errorHandler(request, response, e.code, e.message);
                         }
                         else 
                         {
@@ -134,19 +143,20 @@ function postHandler(request,response)
                 }
                 else
                 {
-                    errorHandler(request,response,2, `Студент с id ${JSON.parse(body).id} не существует`);
+                    errorHandler(request,response,2, `Студент с id ${JSON.parse(body).id} уже существует`);
                 }
             });
+            break;
         }
         case '/backup':
         {
             let date = new Date();
-            fs.copyFile(pathToFile, `./backup/${date.getFullYear()}${date.getMonth() + 1}${date.getDay()}${date.getHours()}${date.getMinutes()}_StudentList.json`, (err) => 
+            fs.copyFile(pathToFile, `./backup/${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}_StudentList.json`, (err) => 
             {
                 if (err) 
                 {
                     console.log('Error');
-                    errHandler(request, response, err.code, err.message);
+                    errorHandler(request, response, err.code, err.message);
                 }
                 else 
                 {
@@ -154,6 +164,7 @@ function postHandler(request,response)
                     response.end('Копия была создана');
                 }
             });
+            break;
         }
         default:
         {
@@ -168,14 +179,14 @@ function deleteHandler(request,response)
     let path = url.parse(request.url).pathname;
     switch(true)
     {
-        case (new RegExp(/\/backup\/\d{8}+/)).test(path):
+        case (new RegExp(/\/backup\/\d+/)).test(path):
         {
             let flag = false;
             fs.readdir('./backup', (err, files) => 
             {
                 for (let i = 0; i < files.length; i++) 
                 {
-                    if (files[i].match(/\d{8}/)[0] > Number(path.match(/\d+/))) 
+                    if (files[i].match(/\d{7,8}/)[0] >= Number(path.match(/\d{7,8}/))) 
                     {
                         flag = true;
                         fs.unlink(`./backup/${files[i]}`, (e) => 
@@ -196,10 +207,11 @@ function deleteHandler(request,response)
                     errorHandler(request, response, 3, 'Нет файлов');
                 }
             });
+            break;
         };
         case (new RegExp(/\/\d+/)).test(path):
         {
-            let fileJSON = JSON.parse(readFile());
+            let fileJSON = JSON.parse(readFile(pathToFile));
             let id = Number(path.match(/\d+/)[0]);
             for (let i = 0; i < fileJSON.length; i++) 
             {
@@ -217,7 +229,7 @@ function deleteHandler(request,response)
             }
             if(!response.hasHeader('Content-Type')) 
             {
-                errorHandler(request, response, 1, `Student with id ${id} doesn't exist`);
+                errorHandler(request, response, 1, `Студент с ${id} не существует`);
             }
             else 
             {
@@ -234,6 +246,7 @@ function deleteHandler(request,response)
                     }
                 });
             }
+            break;
         }
     }
 };
@@ -278,7 +291,7 @@ function putHandler(request,response)
                                 flag = true;
                                 console.log('Студент был изменён');
                                 response.writeHead(200,{'Content-Type':'application/json;charset=utf-8'});
-                                response.end(JSON.stringify(JSON.parse(body));
+                                response.end(JSON.stringify(JSON.parse(body)));
                             }
                         })
                     }
