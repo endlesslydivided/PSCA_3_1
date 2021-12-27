@@ -7,6 +7,36 @@ query{
     }
 }
 
+query{
+    getFaculties(FACULTY:"БИиП"){
+        FACULTY
+        FACULTY_NAME
+    }
+}
+
+
+query{
+    getPulpits{
+        PULPIT
+        PULPIT_NAME
+    }
+}
+
+query{
+    getSubjects{
+        SUBJECT
+        SUBJECT_NAME
+    }
+}
+
+query{
+    getTeachers{
+        TEACHER
+        TEACHER_NAME
+    }
+}
+
+
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
 mutation($TEACHER: String!,$TEACHER_NAME:String!,$PULPIT:String!)
@@ -40,6 +70,16 @@ query{
        {
            TEACHER
            TEACHER_NAME
+       }
+    }
+}
+
+query{
+    getSubjectsByFaculty(FACULTY:"ЛХФ"){
+       FACULTY
+       SUBJECTS
+       {
+       
        }
     }
 }

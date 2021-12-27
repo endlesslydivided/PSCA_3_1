@@ -1,55 +1,82 @@
 const http = require('http');
-const {graphql, buildSchema} = require('graphql');
-const schema = buildSchema(require('fs').readFileSync('./schema.gql').toString());
+
 const { DB } = require('./DB/DB');
 const resolver = require('./resolver');
-const { Error400, Resp200, IsError } = require('./errors/module');
+const {graphql, buildSchema} = require('graphql');
+const schema = buildSchema(require('fs').readFileSync('./schema.gql').toString());
 
 const server = http.createServer();
 
-const context = DB((err, connect) => {
-    if (err) {
-        console.error('Database connection failed');
+const context = DB((error) => 
+{
+    if (error) 
+    {
+        console.error('Не удалось подключиться к базе данных');
     }
-    else {
-        console.log('Database connection successful');
-        server.listen(3000, () => {
-            console.log('Server running at http://localhost:3000/')})
-            .on('error', (err) => { console.log('Error:', err.code); })
+    else 
+    {
+        console.log('Подключение к базе данных прошло успешно');
+        server.listen(3000, () => 
+        {
+            console.log('Сервер: http://localhost:3000/')})
+            .on('error', (error) => { console.log('Ошибка:', error.code); })
             .on('request', handler);
     }
 });
 
-const handler = (request, response) => {
-    if (request.method === 'POST') {
-        let result = '';
-        request.on('data', (data) => { result += data; });
-        request.on('end', () => {
-            try {
-                let obj = JSON.parse(result);
-                if (obj.mutation) {
-                    graphql(schema, obj.mutation, resolver, context, obj.variables?obj.variables:{})
-                        .then((result) => {
-                            new IsError(result)
-                                .then((json) => { Error400(response, '', json) })
-                                .else((json) => { Resp200(response, '', json) });
-                        })
-                }
-                if (obj.query) {
-                    graphql(schema, obj.query, resolver, context, obj.variables ? obj.variables : {})
-                        .then((result) => {
-                            new IsError(result)
-                                .then((json) => { Error400(response, '', json) })
-                                .else((json) => { Resp200(response, '', json) });
+const handler = (request, response) => 
+{
+    if (request.method === 'POST') 
+    {
+        let reqData = '';
+        request.on('data', (data) => 
+        { 
+            reqData += data; 
+        });
+        request.on('end', () => 
+        {
+            try 
+            {
+                let data = JSON.parse(reqData);
+                if (data.query) 
+                {
+                    graphql(schema, data.query, resolver, context, data.variables ? data.variables : {})
+                        .then((result) => 
+                        {
+
+                            if (result.errors) 
+                            {
+                                let json = JSON.stringify(result.errors);
+
+                                console.log(json);
+                                response.writeHead(400, {'Content-Type':'application/json; charset=utf-8'});
+                                response.end(json);
+                            }
+                            else if (result.data) 
+                            {
+                                let json = JSON.stringify(result.data);
+
+                                console.log(json);
+                                response.writeHead(200, {'Content-Type':'application/json; charset=utf-8'});
+                                response.end(json);
+                            }
+                           
                         })
                 }
             }
-            catch (e) {
-                Error400(response, JSON.stringify({error: 'Bad Request'}));
+            catch (e) 
+            {
+                let json = JSON.stringify({message: 'Ошибка запроса'});
+                console.log(json);
+                response.writeHead(400, {'Content-Type':'application/json; charset=utf-8'});
+                response.end(json);            
             }
         })
     }
     else {
-        Error400(response,JSON.stringify({error: 'Invalid method'}));
+        let json = JSON.stringify({message: 'Неверный метод'});
+        console.log(json);
+        response.writeHead(405, {'Content-Type':'application/json; charset=utf-8'});
+        response.end(json);   
     }
 };
